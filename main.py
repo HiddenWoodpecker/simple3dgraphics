@@ -4,6 +4,8 @@ from math import sqrt
 from sphere import Sphere
 from camera import Camera
 from plain import Plain
+from scene import Scene
+from math import inf
 py.init()
 
 
@@ -25,9 +27,11 @@ def get_color(v:int, minv:int, maxv:int)->int:
 
 clock=py.time.Clock() 
 sphere1 = Sphere(py.Vector3(3, 0,0) , 5)
+sphere2=  Sphere(py.Vector3(-10, 3,0) , 5)
+sphere2.colorMask = py.Vector3(1,2,2)
 camera = Camera(py.Vector3(-10,0,0), py.Vector3(1,0,0), py.Vector3(0,0,1))#camera
 plain1 = Plain(py.Vector3(0,0,-3), py.Vector3(1,0,0), py.Vector3(0,1,0))
-
+scene = Scene(sphere1, plain1, sphere2)
 
 c = 0
 while True:
@@ -55,34 +59,18 @@ while True:
             x = (i/W)*2 * W/H - 1
             y = (j/H)*2 - 1
             rd = camera.get_dir(x,y).normalize()
-           # d1 = sphere1.intersects(cam_center, rd)
-            #d2 = plain1.intersect(cam_center, rd)
             minIt = 10000
-            it = sphere1.intersect(ro, rd)
-            if it>0:
-                minIt = it
-                intersectionPoint = ro + it *rd
-                n = -(intersectionPoint - sphere1.center)
-                objColorMask = sphere1.colorMask
-            
-            it = plain1.intersect(ro,rd)
-            
-            if it>0:
-                if it < minIt:
-                    minIt = it
-                    objColorMask = plain1.colorMask
-                    #intersectionPoint = ro + it *rd
-                    n = plain1.n
-
-                
-            
-            color = (0,0,0)
-            if minIt == 10000:
+            minIt, obj = scene.FMD(ro,rd)
+            if obj == None:
+                color = (0,0,0)
+            elif minIt == -1:
                 color = (0,0,0)
             else:
+                objColorMask = obj.get_color()
+                n = obj.get_normal(minIt, ro, rd)
                 n = n.normalize()
 
-                diffuse = max(0, n.dot(light))*0.3
+                diffuse = max(0, n.dot(light))*0.35
                 reflection = (rd - 2*n.dot(rd)*n).normalize()
                 spec = max(0, reflection.dot(light))**2
                 c = int(( spec+diffuse)*200)
@@ -92,7 +80,7 @@ while True:
     #print(camera.r, camera.upguide, camera.dr)
     #print(camera.upguide,camera.r, camera.upguide.dot(camera.dr))
     #print(camera.upguide)
-    light = light.rotate(1, py.Vector3(0,0,1))
+    light = light.rotate(1, py.Vector3(1,0,1))
     py.display.update()
     sc.fill((0,0,0))
     
