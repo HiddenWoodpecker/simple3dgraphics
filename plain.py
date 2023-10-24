@@ -1,9 +1,10 @@
 import pygame as py
 import numpy
-
+from math import inf
+from object import Object
 EPSILON = 0.0001
 
-class Plain:
+class Plain (Object):
     def __init__(self, orig:py.Vector3, v1:py.Vector3, v2:py.Vector3) -> None:
         self.orig = orig
         self.v1 = v1
@@ -19,9 +20,16 @@ class Plain:
         self.n = py.Vector3(0,0,1)
         self.d = -10
         self.colorMask = py.Vector3(2,2,1)
+    
     def intersect(self, ro:py.Vector3, rd:py.Vector3)->float:
         q = rd.dot(self.n)
         if abs(q) < EPSILON:
             return -1
         t = (-self.d - self.n*ro)/q
         return t
+    
+    def get_color(self) -> py.Vector3:
+        return self.colorMask
+    
+    def get_normal(self, minIt:float, ro:py.Vector3, rd:py.Vector3) -> py.Vector3:
+        return self.n
