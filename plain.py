@@ -2,8 +2,9 @@ import pygame as py
 import numpy
 from math import inf
 from object import Object
-EPSILON = 0.0001
+EPSILON = 0.00001
 
+MAX_RENDER_DIST = 10000
 class Plain (Object):
     def __init__(self, orig:py.Vector3, v1:py.Vector3, v2:py.Vector3) -> None:
         self.orig = orig
@@ -18,14 +19,17 @@ class Plain (Object):
            #                  ).normalize()
         #self.d = -self.matrix[0][0]*self.n.x+ self.matrix[0][1]*self.n.y - self.matrix[0][2]*self.n.z
         self.n = py.Vector3(0,0,1)
-        self.d = -10
-        self.colorMask = py.Vector3(2,2,1)
+        self.d = -3
+        self.colorMask = py.Vector3(1,10,10)
     
     def intersect(self, ro:py.Vector3, rd:py.Vector3)->float:
         q = rd.dot(self.n)
-        if abs(q) < EPSILON:
+        if q < EPSILON:
             return -1
+
         t = (-self.d - self.n*ro)/q
+        if t > MAX_RENDER_DIST or t <= 0:
+            return - 1
         return t
     
     def get_color(self) -> py.Vector3:

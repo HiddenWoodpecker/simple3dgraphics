@@ -1,5 +1,5 @@
 import pygame as py
-
+from math import pi
 
 class Camera:
 
@@ -16,12 +16,13 @@ class Camera:
         else:
             self.r -= 0.1*self.dr
         self.r = self.r.normalize()
+
         self.dr = self.r.cross(self.upguide).normalize()
 
 
-    def change_upguide(self, angle)->None:
-        pass
-
+    def change_upguide(self, angle:float)->None:
+        self.upguide = self.upguide.rotate(angle, self.dr).normalize()
+        self.dr =  self.r.cross(self.upguide).normalize()
     def zoom_in_out(self, dir=True)->None:
         if dir:
             self.r += self.r*0.1
@@ -47,6 +48,14 @@ class Camera:
             self.zoom_in_out(True)
         if  keys[py.K_e]:
             self.zoom_in_out(False)
+        if  keys[py.K_DOWN]:
+            self.change_upguide(30)
+        if keys[py.K_UP]:
+            self.change_upguide(-30)
+        if keys[py.K_LEFT]:
+            self.change_right(False)
+        if keys[py.K_RIGHT]:
+            self.change_right(True)
     
     def get_center(self)->py.Vector3:
         return self.origin
